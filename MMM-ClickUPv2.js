@@ -138,7 +138,7 @@ Module.register("MMM-ClickUPv2", {
 
 			this.filterTasksList(payload.tasks);
 		} else if (notification === "Error") {
-			Log.error("Received Error: " + JSON.parse(payload.error).err, this)
+			Log.error("Received Error: " + JSON.stringify(payload.error).err, this)
 		}
 	},
 
