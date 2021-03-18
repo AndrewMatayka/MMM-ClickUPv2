@@ -1,0 +1,122 @@
+.alignLeft {
+  text-align: left;
+}
+
+.alignRight {
+  text-align: right;
+}
+
+.spacer {
+  width: 3px;
+}
+
+.subSpacer {
+  width: 12px;
+}
+
+/* IMPORTED */
+.priority {
+  width: 3px;
+  border-right: 3px;
+  margin-right: 3px;
+}
+
+.priority1 {
+  background-color: #D1453B;
+}
+
+.priority2 {
+  background-color: #ffcc00;
+}
+
+.priority3 {
+  background-color: #6fddff;
+}
+
+.priority4 {
+  background-color: #d8d8d8
+}
+
+
+.overdue {
+  text-decoration: underline #ac0000;
+}
+
+.today {
+  text-decoration: underline #03a05c;
+}
+
+.tomorrow {
+  text-decoration: underline #166cec;
+}
+
+.projectcolor {
+  padding: 0 !important;
+  margin-right: 4px !important;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  vertical-align: top;
+  margin-top: 3px;
+}
+
+/* StrikeThrough and Dissapear Setup */
+td {
+  position: relative;
+}
+
+tr.strikethrough td:before {
+  content: " ";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  border-bottom: 1px solid white;
+  width: 100%;
+}
+
+.disappear {
+  display: none !important;
+}
+
+/* Table Setup */
+.divTable {
+  display: table;
+  border: 1px solid white;
+  width: 100%;
+  border-collapse: collapse;
+  empty-cells: show;
+}
+
+.divTableRow {
+  display: table-row;
+  column-span: all;
+}
+
+.divTableHeading {
+  background-color: #EEE;
+  display: table-header-group;
+}
+
+.divTableCell, .divTableHead {
+  border: 1px solid #999999;
+  display: table-cell;
+  /* padding: 3px 10px; */
+  vertical-align: middle;
+}
+
+.divTableHeading {
+  background-color: #EEE;
+  display: table-header-group;
+  font-weight: bold;
+}
+
+.divTableFoot {
+  background-color: #EEE;
+  display: table-footer-group;
+  font-weight: bold;
+}
+
+.divTableBody {
+  display: table-row-group;
+}
