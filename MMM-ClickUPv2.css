@@ -82,7 +82,7 @@ tr.strikethrough td:before {
 /* Table Setup */
 .divTable {
   display: table;
-  border: 1px solid white;
+  /* border: 1px solid white; */
   width: 100%;
   border-collapse: collapse;
   empty-cells: show;
@@ -99,7 +99,7 @@ tr.strikethrough td:before {
 }
 
 .divTableCell, .divTableHead {
-  border: 1px solid #999999;
+  /* border: 1px solid #999999; */
   display: table-cell;
   /* padding: 3px 10px; */
   vertical-align: middle;
