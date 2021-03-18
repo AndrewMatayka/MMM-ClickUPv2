@@ -236,7 +236,7 @@ Module.register("MMM-ClickUPv2", {
 			} else if (diffDays === 1) {
 				innerHTML = this.translate("TOMORROW");
 				className += "xsmall tomorrow";
-			} else if (diffDays < 7) {
+			} else if (diffDays < 4) {
 				innerHTML = dueDate.toLocaleDateString(config.language, {
 					"weekday": "long"
 				});
