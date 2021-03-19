@@ -150,8 +150,16 @@ module.exports = NodeHelper.create({
 								Authorization: accessToken
 							},
 						}, function (error, response, body) {
-							if (!error)
-								resolve(JSON.parse(body).folders[1].id);
+							if (!error) {
+								//resolve(JSON.parse(body).folders[1].id);
+								let folders = JSON.parse(body).folders;
+
+								folders.forEach(folder => {
+									if (self.config.folderName === folder.name) {
+										resolve(folder.id);
+									}
+								});
+							}
 						});
 					}).then(value => {
 						if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Folders ID: " + value, "color: green;")
@@ -164,8 +172,16 @@ module.exports = NodeHelper.create({
 									Authorization: accessToken
 								},
 							}, function (error, response, body) {
-								if (!error)
-									resolve(JSON.parse(body).lists[0].id);
+								if (!error) {
+									//resolve(JSON.parse(body).lists[0].id);
+									let lists = JSON.parse(body).lists;
+
+									lists.forEach(list => {
+										if (self.config.listName === list.name) {
+											resolve(list.id);
+										}
+									});
+								}
 							});
 						}).then(value => {
 							if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Lists ID: " + value, "color: green;");
