@@ -36,6 +36,9 @@ const Log = {
 Module.register("MMM-ClickUPv2", {
 	//Default Config Values
 	defaults: {
+		folderName: "Education", //Define Folder Name for Folder you Want Tasks From
+		listName: "Homework", //Define List Name From the Folder You Wanted Tasks From
+
 		updateInterval: 60 * 1000, //How often module is updated: (Min * Sec * Ms) = Every 60 Seconds
 
 		taskTypes: ["Class", "Type"], //The Task Types you want to be shown (Custom Fields)
@@ -46,8 +49,6 @@ Module.register("MMM-ClickUPv2", {
 		clientID: "CZ2CGOL98DNVSMP4O4T3YN26L7E4E4VR",
 		clientSecret: "2YFBQZPOZ47OZGEAORT8LYFHX6ICILIJD8CIPZFBMMIY8O48QL29ZDAJ6REN4E12",
 		accessCode: "40R1Z3TX3EYQ9HW1VSZBMM1EMX3MJNH2",
-
-		accessToken: "", //Access Token required for authorization of API
 
 		debug: false,
 	},
@@ -70,6 +71,7 @@ Module.register("MMM-ClickUPv2", {
 
 	//Ran at start of module
 	start: function () {
+		Log.log(this.config.debug);
 		if (this.config.debug) {
 			Log.trace("Getting Styles: " + this.getStyles(), this);
 		}
