@@ -100,6 +100,10 @@ Module.register("MMM-ClickUPv2", {
 				clearInterval(interId);
 			}
 		}, 50);
+
+		this.updateIntervalID = setInterval(function () {
+			self.continueStart();
+		}, this.config.updateInterval);
 	},
 
 	//Ran when Access Token is found and we can continue startup
@@ -107,11 +111,11 @@ Module.register("MMM-ClickUPv2", {
 		const self = this;
 
 		//Run Code Here to Fetch first tasks list, then interval to keep requesting tasks list.
-		self.sendSocketNotification('Request_TasksList', this.config); //Request Access Token from Node Helper
+		//self.sendSocketNotification('Request_TasksList', this.config); //Request Access Token from Node Helper
 
-		setInterval(function () {
-			self.sendSocketNotification('Request_TasksList', this.config); //Request Access Token from Node Helper
-		}, this.config.updateInterval);
+		//setInterval(function () {
+		self.sendSocketNotification('Request_TasksList', this.config); //Request Access Token from Node Helper
+		//}, this.config.updateInterval);
 	},
 
 	//Ran on suspension of module
@@ -148,12 +152,12 @@ Module.register("MMM-ClickUPv2", {
 		let submittedCount = 0;
 
 		//Reset the list each run to not make duplicates
-		if (this.tasks !== undefined) {
-			if (this.tasks.items.length > 0 || this.tasks.parents.length > 0) {
-				this.tasks.items.length = 0;
-				this.tasks.parents.length = 0;
-			}
-		}
+		//if (this.tasks !== undefined) {
+		//	if (this.tasks.items.length > 0 || this.tasks.parents.length > 0) {
+		//		this.tasks.items.length = 0;
+		//		this.tasks.parents.length = 0;
+		//	}
+		//}
 
 		const self = this; //Setting self so we have a localized instance
 		let items = []; //Array of individual tasks that dont have parents
@@ -179,7 +183,8 @@ Module.register("MMM-ClickUPv2", {
 			"parents": parents
 		}
 
-		self.updateDom();
+		this.loaded = true;
+		this.updateDom(1000);
 	},
 
 	//#region CreateCellTypes
