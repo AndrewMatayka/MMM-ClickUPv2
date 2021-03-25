@@ -402,24 +402,7 @@ Module.register("MMM-ClickUPv2", {
 			}
 		});
 
-		//For every Task, we will see if it has reached the Start Date yet, and if not then they will not be displayed
-		this.tasks.items.forEach(item => {
-			if (item.start_date !== null) {
-				const oneDay = 24 * 60 * 60 * 1000;
-				let startDateTime = new Date(parseInt(item.start_date));
-				let startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
-				let now = new Date();
-				let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-				let diffDays = Math.floor((startDate - today) / (oneDay));
-
-				if (diffDays < 0) {
-					let index = this.tasks.items.indexOf(item);
-
-					this.tasks.items.splice(index, 1);
-				}
-			}
-		});
-
+		//Also creating everything we need to show our tasks.
 		this.tasks.items.forEach(item => {
 			if (this.config.debug) Log.trace("Item: " + item.name + " | " + item.id, this);
 
@@ -431,6 +414,22 @@ Module.register("MMM-ClickUPv2", {
 			if (item.status.status === this.config.completedStatus) {
 				divRow.className += " strikethrough"
 				divRow.style.filter = "brightness(50%) grayscale(100%)";
+			}
+
+			//For every Task, we will see if it has reached the Start Date yet, and if not then they will not be displayed
+			Log.info(item.name + " :: " + item.start_date);
+			if (item.start_date !== null) {
+				const oneDay = 24 * 60 * 60 * 1000;
+				let startDateTime = new Date(parseInt(item.start_date));
+				let startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
+				let now = new Date();
+				let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+				let diffDays = Math.floor((startDate - today) / (oneDay));
+				if (this.config.debug) Log.trace("Diff Days: " + item.name + " | " + diffDays, this);
+
+				if (diffDays > 0) {
+					return;
+				}
 			}
 
 			//Add Priority Cell
