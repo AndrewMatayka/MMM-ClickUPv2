@@ -151,14 +151,6 @@ Module.register("MMM-ClickUPv2", {
 	filterTasksList: function (tasks) {
 		let submittedCount = 0;
 
-		//Reset the list each run to not make duplicates
-		//if (this.tasks !== undefined) {
-		//	if (this.tasks.items.length > 0 || this.tasks.parents.length > 0) {
-		//		this.tasks.items.length = 0;
-		//		this.tasks.parents.length = 0;
-		//	}
-		//}
-
 		const self = this; //Setting self so we have a localized instance
 		let items = []; //Array of individual tasks that dont have parents
 		let parents = []; //Array of individual tasks that have parents
@@ -406,6 +398,24 @@ Module.register("MMM-ClickUPv2", {
 			if (index !== null) {
 				if (this.tasks.items[index].status.status !== this.config.completedStatus) {
 					this.tasks.items.splice(index + 1, 0, item)
+				}
+			}
+		});
+
+		//For every Task, we will see if it has reached the Start Date yet, and if not then they will not be displayed
+		this.tasks.items.forEach(item => {
+			if (item.start_date !== null) {
+				const oneDay = 24 * 60 * 60 * 1000;
+				let startDateTime = new Date(parseInt(item.start_date));
+				let startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
+				let now = new Date();
+				let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+				let diffDays = Math.floor((startDate - today) / (oneDay));
+
+				if (diffDays < 0) {
+					let index = this.tasks.items.indexOf(item);
+
+					this.tasks.items.splice(index, 1);
 				}
 			}
 		});
