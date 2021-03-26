@@ -46,6 +46,7 @@ Module.register("MMM-ClickUPv2", {
 		completedStatus: "submitted", //Name of the status used to mark completion
 		maxCompletedTaskCount: 3, //The max amount of shown completed tasks
 		dontShowUntilStartDate: true, //If true, will hide any tasks until their start date. If false will show all tasks as normal
+		includeTextInStatusIndicatorCell: true, //Self-Evident
 
 		clientID: "CZ2CGOL98DNVSMP4O4T3YN26L7E4E4VR",
 		clientSecret: "2YFBQZPOZ47OZGEAORT8LYFHX6ICILIJD8CIPZFBMMIY8O48QL29ZDAJ6REN4E12",
@@ -345,14 +346,26 @@ Module.register("MMM-ClickUPv2", {
 	},
 
 	addStatusIndicatorCell: function (item) {
-		let className = "status ";
+		let className = "status";
 		let style = "";
+		let innerHTML = "&nbsp;"
 
 		if (item.status.status !== null) {
 			style += "background-color: " + item.status.color + " ";
 		}
+		if (this.config.includeTextInStatusIndicatorCell) {
+			innerHTML = item.status.status;
+			const words = innerHTML.split(" ");
 
-		return this.createCell(className, "&nbsp;", style)
+			//Capitalize the first letter of every word
+			for (let i = 0; i < words.length; i++) {
+				words[i] = words[i][0].toUpperCase() + words[i].substr(1);
+			}
+
+			innerHTML = "<span class='bgText'>" + words.join(" ") + "</span>";
+		}
+
+		return this.createCell(className, innerHTML, style)
 	},
 
 	//Add Type Cell depending on input. Uses Custom Field
@@ -374,14 +387,10 @@ Module.register("MMM-ClickUPv2", {
 			typeValColor = item.custom_fields[typeValIndex].type_config.options[item.custom_fields[typeValIndex].value].color;
 		}
 
-		let innerHTML = "";
-		if (highlightedType === false) {
-			innerHTML = "<span style='color: " + typeValColor + ";'>" + typeValName + "</span>";
-		} else {
-			innerHTML = "<span class='projectcolor' style='color: " + typeValColor + "; background-color: " + typeValColor + "'></span>" + typeValName;
-		}
+		let innerHTML = "<span class='bgText'>" + typeValName + "</span>";
+		let style = "background-color: " + typeValColor + " ";
 
-		return this.createCell("xsmall", innerHTML);
+		return this.createCell("", innerHTML, style);
 	},
 	////#endregion
 
@@ -490,10 +499,9 @@ Module.register("MMM-ClickUPv2", {
 			divRow.appendChild(this.addPriorityIndicatorCell(item));
 
 			//Add Status Cell
-			divRow.appendChild(this.addStatusIndicatorCell(item));
-
-			//Add Status Indicator Cell
-			//divRow.appendChild(this.addStatusIndicatorCell(item, ""));
+			if (!this.config.includeTextInStatusIndicatorCell) {
+				divRow.appendChild(this.addStatusIndicatorCell(item));
+			}
 
 			//Make Subtasks have extra spacer cell, to make them look like subtasks
 			divRow.appendChild(this.addColumnSpacerCell());
@@ -504,11 +512,9 @@ Module.register("MMM-ClickUPv2", {
 			//Add Title Cell
 			divRow.appendChild(this.addTitleCell(item));
 
-			//Add Due Date Cell
-			divRow.appendChild(this.addDueDateCell(item));
-
-			//Spacing
-			divRow.appendChild(this.addColumnSpacerCell());
+			if (this.config.includeTextInStatusIndicatorCell) {
+				divRow.appendChild(this.addStatusIndicatorCell(item));
+			}
 
 			//If debugging then show the possible task types.
 			if (this.config.debug) Log.trace("Possible Task Types: " + this.getPossibleTaskTypes(), this);
@@ -519,13 +525,12 @@ Module.register("MMM-ClickUPv2", {
 
 			taskTypes.forEach(type => {
 				highlightedTaskTypes.forEach(high => {
-					if (type === high) {
-						divRow.appendChild(this.addTypeCell(item, type, true));
-					} else {
-						divRow.appendChild(this.addTypeCell(item, type, false));
-					}
-				})
+					divRow.appendChild(this.addTypeCell(item, type, type === high));
+				});
 			});
+
+			//Add Due Date Cell
+			divRow.appendChild(this.addDueDateCell(item));
 
 			//Make sure there are no duplicates being made
 			let arr = Array.from(divBody.children);
