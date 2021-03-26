@@ -197,6 +197,23 @@ Module.register("MMM-ClickUPv2", {
 		return cell;
 	},
 
+	createCell: function (className, innerHTML, style) {
+		let cell = document.createElement("td");
+		cell.className = "divTableCell " + className;
+		cell.innerHTML = innerHTML;
+		cell.style = style;
+
+		if (cell.className.includes("title")) {
+			if (innerHTML.includes("-->")) {
+				cell.colSpan = 1;
+			} else {
+				cell.colSpan = 2;
+			}
+		}
+
+		return cell;
+	},
+
 	//Add suffix to date depending on the day. {st, nd, rd, th}
 	dateOrdinal: function (d) {
 		return d + (31 === d || 21 === d || 1 === d ? "st" : 22 === d || 2 === d ? "nd" : 23 === d || 3 === d ? "rd" : "th");
@@ -325,6 +342,17 @@ Module.register("MMM-ClickUPv2", {
 			className += "priority1";
 		}
 		return this.createCell(className, "&nbsp;");
+	},
+
+	addStatusIndicatorCell: function (item) {
+		let className = "status ";
+		let style = "";
+
+		if (item.status.status !== null) {
+			style += "background-color: " + item.status.color + " ";
+		}
+
+		return this.createCell(className, "&nbsp;", style)
 	},
 
 	//Add Type Cell depending on input. Uses Custom Field
@@ -460,6 +488,9 @@ Module.register("MMM-ClickUPv2", {
 
 			//Add Priority Cell
 			divRow.appendChild(this.addPriorityIndicatorCell(item));
+
+			//Add Status Cell
+			divRow.appendChild(this.addStatusIndicatorCell(item));
 
 			//Add Status Indicator Cell
 			//divRow.appendChild(this.addStatusIndicatorCell(item, ""));
