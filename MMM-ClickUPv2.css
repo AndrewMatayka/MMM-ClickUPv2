@@ -21,6 +21,12 @@
   margin-right: 3px;
 }
 
+.status {
+  width: 6px;
+  border-right: 6px;
+  margin-right: 6px;
+}
+
 .priority1 {
   background-color: #D1453B;
 }
