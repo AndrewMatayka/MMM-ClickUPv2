@@ -168,7 +168,10 @@ Module.register("MMM-ClickUPv2", {
 					if (tasks[i].status.status === this.config.completedStatus) submittedCount++;
 				}
 			} else {
-				parents.push(tasks[i]);
+				//MAKE SUBTASKS NOT SHOWN
+				if (tasks[i].status.status !== this.config.completedStatus) {
+					parents.push(tasks[i]);
+				}
 			}
 		}
 
