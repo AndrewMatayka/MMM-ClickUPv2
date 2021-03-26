@@ -45,6 +45,7 @@ Module.register("MMM-ClickUPv2", {
 		highlightedTaskTypes: ["Class"], //The highlighted Task Type for Custom Fields
 		completedStatus: "submitted", //Name of the status used to mark completion
 		maxCompletedTaskCount: 3, //The max amount of shown completed tasks
+		dontShowUntilStartDate: true, //If true, will hide any tasks until their start date. If false will show all tasks as normal
 
 		clientID: "CZ2CGOL98DNVSMP4O4T3YN26L7E4E4VR",
 		clientSecret: "2YFBQZPOZ47OZGEAORT8LYFHX6ICILIJD8CIPZFBMMIY8O48QL29ZDAJ6REN4E12",
@@ -417,18 +418,43 @@ Module.register("MMM-ClickUPv2", {
 			}
 
 			//For every Task, we will see if it has reached the Start Date yet, and if not then they will not be displayed
-			Log.info(item.name + " :: " + item.start_date);
-			if (item.start_date !== null) {
-				const oneDay = 24 * 60 * 60 * 1000;
-				let startDateTime = new Date(parseInt(item.start_date));
-				let startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
-				let now = new Date();
-				let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-				let diffDays = Math.floor((startDate - today) / (oneDay));
-				if (this.config.debug) Log.trace("Diff Days: " + item.name + " | " + diffDays, this);
+			if (this.config.dontShowUntilStartDate) {
+				if (item.start_date !== null) {
+					const oneDay = 24 * 60 * 60 * 1000;
+					let startDateTime = new Date(parseInt(item.start_date));
+					let startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
+					let now = new Date();
+					let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+					let diffDays = Math.floor((startDate - today) / (oneDay));
+					if (this.config.debug) Log.trace("Diff Days: " + item.name + " | " + diffDays, this);
 
-				if (diffDays > 0) {
-					return;
+					if (diffDays > 0) {
+						return;
+					}
+				} else { //If a SubTasks parent task isn't started yet, then don't show any of the subtasks either.
+					let index = null;
+					let count = 0;
+
+					this.tasks.items.forEach(itemParents => {
+						if (itemParents.id === item.parent) {
+							index = count;
+						}
+						count++;
+					});
+
+					if (index !== null) {
+						const oneDay = 24 * 60 * 60 * 1000;
+						let startDateTime = new Date(parseInt(this.tasks.items[index].start_date));
+						let startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
+						let now = new Date();
+						let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+						let diffDays = Math.floor((startDate - today) / (oneDay));
+						if (this.config.debug) Log.trace("Diff Days (Parent): " + item.name + " | " + diffDays, this);
+
+						if (diffDays > 0) {
+							return;
+						}
+					}
 				}
 			}
 
