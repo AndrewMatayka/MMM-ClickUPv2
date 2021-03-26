@@ -14,17 +14,16 @@
   width: 12px;
 }
 
+.bgText {
+  color: rgb(162, 162, 162);
+  mix-blend-mode: difference;
+}
+
 /* IMPORTED */
 .priority {
   width: 3px;
   border-right: 3px;
   margin-right: 3px;
-}
-
-.status {
-  width: 6px;
-  border-right: 6px;
-  margin-right: 6px;
 }
 
 .priority1 {
@@ -43,6 +42,12 @@
   background-color: #d8d8d8
 }
 
+/* DUE DATE STUFF */
+.dueDate {
+  width: 1%;
+  white-space: nowrap;
+  padding: 0 0 0 10px;
+}
 
 .overdue {
   text-decoration: underline #ac0000;
@@ -55,19 +60,9 @@
 .tomorrow {
   text-decoration: underline #166cec;
 }
+/* END END END END */
 
-.projectcolor {
-  padding: 0 !important;
-  margin-right: 4px !important;
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 12px;
-  vertical-align: top;
-  margin-top: 3px;
-}
-
-/* StrikeThrough and Dissapear Setup */
+/* StrikeThrough and Disappear Setup */
 td {
   position: relative;
 }
@@ -77,7 +72,7 @@ tr.strikethrough td:before {
   position: absolute;
   top: 50%;
   left: 0;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid #ffffff;
   width: 100%;
 }
 
@@ -88,15 +83,13 @@ tr.strikethrough td:before {
 /* Table Setup */
 .divTable {
   display: table;
-  /* border: 1px solid white; */
   width: 100%;
   border-collapse: collapse;
   empty-cells: show;
 }
 
 .divTableRow {
-  display: table-row;
-  column-span: all;
+  width: 100%;
 }
 
 .divTableHeading {
@@ -105,9 +98,7 @@ tr.strikethrough td:before {
 }
 
 .divTableCell, .divTableHead {
-  /* border: 1px solid #999999; */
   display: table-cell;
-  /* padding: 3px 10px; */
   vertical-align: middle;
 }
 
