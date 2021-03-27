@@ -116,7 +116,6 @@ Module.register("MMM-ClickUPv2", {
 		}, this.config.updateInterval);
 	},
 	//#endregion
-
 	//#region Change State
 	//Ran on suspension of module
 	suspend: function () {
