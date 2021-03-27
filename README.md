@@ -29,6 +29,8 @@ To setup this module, follow these steps:
 5. Click the Green Plus near the right side that says `+ Create an App`.
 6. Enter `MMM-ClickUPv2` as the `App Name`.
 7. Enter `127.0.0.1` as the `Redirect URL(s)`.
+   If you aren't going to be accessing the web server from the same computer as it's running, then make sure to also add the ip of that computer here with a comma.
+   When you start the web server it will display its ip.
 8. Click the Green box that says `Create App`.
 9. Copy the `Client ID` and `Client Secret` that you are shown to your `config/config.js`.
 It may also be a good idea to note these values down so you don't lose them later.
