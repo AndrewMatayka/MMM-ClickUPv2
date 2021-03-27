@@ -5,6 +5,7 @@
  */
 let receivedToken = false;
 let loaded = false;
+let userPresence = true;
 
 //#region NEW LOG FUNCTION
 const Log = {
@@ -49,9 +50,9 @@ Module.register("MMM-ClickUPv2", {
 		includeTextInStatusIndicatorCell: true, //Self-Evident
 		showSubmittedSubtasks: false, //Self-Evident
 
-		clientID: "CZ2CGOL98DNVSMP4O4T3YN26L7E4E4VR",
-		clientSecret: "2YFBQZPOZ47OZGEAORT8LYFHX6ICILIJD8CIPZFBMMIY8O48QL29ZDAJ6REN4E12",
-		accessCode: "40R1Z3TX3EYQ9HW1VSZBMM1EMX3MJNH2",
+		clientID: "",
+		clientSecret: "",
+		accessCode: "",
 
 		debug: false,
 	},
@@ -83,6 +84,8 @@ Module.register("MMM-ClickUPv2", {
 		Log.info("Starting Module: " + this.name);
 
 		const self = this; //Set variable self to this object
+
+		this.moduleHidden = false;
 
 		//Need to check if we already have Access Token. If not we need to acquire it.
 		if (this.config.accessToken !== null && this.config.accessToken !== undefined && this.config.accessToken !== "") {
@@ -117,16 +120,45 @@ Module.register("MMM-ClickUPv2", {
 	//#region Change State
 	//Ran on suspension of module
 	suspend: function () {
-
+		this.moduleHidden = true;
+		this.userPresenceUpdate();
 	},
 
 	//Ran on resume of module
 	resume: function () {
+		this.moduleHidden = false;
+		this.userPresenceUpdate();
+	},
 
+	userPresenceUpdate: function () {
+		if (userPresence === true && this.moduleHidden === false) {
+			let self = this;
+
+			// update now
+			this.sendSocketNotification("Request_TasksList", this.config);
+
+			//if no IntervalID defined, we set one again. This is to avoid several setInterval simultaneously
+			if (this.updateIntervalID === 0) {
+				this.updateIntervalID = setInterval(function () {
+					self.sendSocketNotification("Request_TasksList", self.config);
+				}, this.config.updateInterval);
+			}
+		} else { //if (UserPresence = false OR ModuleHidden = true)
+			clearInterval(this.updateIntervalID); // stop the update interval of this module
+			this.updateIntervalID = 0; //reset the flag to be able to start another one at resume
+		}
 	},
 	//#endregion
 
 	//#region Notifications Received
+	//Ran when receiving notifications from other Modules
+	notificationReceived: function (notification, payload) {
+		if (notification === "USER_PRESENCE") { // notification Sent by module MMM-PIR-Sensor.
+			userPresence = payload;
+			this.userPresenceUpdate();
+		}
+	},
+
 	//Ran when receiving notification from Node Helper
 	socketNotificationReceived: function (notification, payload) {
 		if (notification === "AccessToken") {
