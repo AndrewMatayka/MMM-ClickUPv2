@@ -46,6 +46,19 @@ module.exports = NodeHelper.create({
 					self.sendSocketNotification("Error", {
 						error: error
 					});
+
+					//if(data.includes("no such")) {
+					fs.open(path + '/accessToken', 'w', (err, file) => {
+						if (err) {
+							throw err;
+						}
+
+						console.log("File is created.");
+					});
+					this.requestAccessToken();
+					//	return;
+					//}
+
 					return console.error("MMM-ClickUPv2 (node): " + error);
 				}
 				aTFData = data;
