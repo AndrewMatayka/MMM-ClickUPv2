@@ -11,6 +11,43 @@ An immediate update will occur once the module returns to the display.
 A new folder will appear, navigate into it.
 2. Execute the command `npm install` in order to install the required node dependencies.
 
+## Setup Guide
+In order to properly use this module, you will have to gain an Access Code using the [MMM-ClickUPv2-Server](https://github.com/AndrewMatayka/MMM-ClickUPv2-Server) retriever.
+As well as create an App through ClickUP for API Access.
+This program should be ran either on your local computer or the Magic Mirror.
+
+*If you are using the Magic Mirror to run the program, you will have to take note of its local ip for later.
+
+To setup this module, follow these steps:
+#### Setting up your ClickUP App
+1. Open your ClickUP workspace on the Desktop App relevant to you.
+2. Click your profile picture / workspace icon with the dropdown arrow in the bottom left corner.
+3. In the options that pop up, select `Integrations`.
+4. Find the Option that says ClickUP Api, as shown here.
+
+![img.png](img.png)
+5. Click the Green Plus near the right side that says `+ Create an App`.
+6. Enter `MMM-ClickUPv2` as the `App Name`.
+7. Enter `127.0.0.1` as the `Redirect URL(s)`.
+8. Click the Green box that says `Create App`.
+9. Copy the `Client ID` and `Client Secret` that you are shown to your `config/config.js`.
+It may also be a good idea to note these values down so you don't lose them later.
+10. Take the `Client ID` you copied and proceed to the following step!
+
+#### Getting your Access Code
+1. Clone the Git Repository into a local directory by running the following command `git clone https://github.com/AndrewMatayka/MMM-ClickUPv2-Server.git`.
+2. CD into the directory with the following command `cd ./MMM-ClickUPv2-Server`.
+3. Make sure all the required dependencies are installed by running the following command `npm start`.
+4. Start the Web Server by running `npm start`.
+5. Take note of the IP Address given in the Terminal. This can be found after the following text `Express Server exposed on IP: {IP-HERE}`
+6. On the same computer or another computer navigate to that ip in your browser. If you get a warning about The connection not being private, find the button for visiting the website anyways and proceed.
+7. On the page that loads, insert the Client ID that you got when you first registered your app with ClickUP into the corresponding Text Field.
+8. Press the button that says `Authorize!`.
+9. On the page that opens up, select the Workspace you are looking to use, and press the green button at the bottom that says `Connect Workspace`.
+10. Once you are redirected back to where you started, copy the Access Code Value that you received and insert it into `config/config.js`.
+
+Once both of these steps have been completed, you should now have everything necessary setup and should be good to run the Module and enjoy it!
+
 ## Using the Module
 In order to use this module, you must add it to the modules array in the `config/config.js` file.
 

@@ -1,8 +1,24 @@
 {
-	"name": "MMM-ClickUPv2",
-	"version": "1.0.0",
-	"dependencies": {},
-	"devDependencies": {
-		"request": "^2.88.2"
-	}
+  "name": "MMM-ClickUPv2",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "request": "^2.88.2"
+  },
+  "description": "This is an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror). It can display your tasks from your ClickUP Todo List. You can add multiple instances of this module with different lists selected. Only one account supported. The requests to the server will be paused if this module is not displayed currently on the Mirror (either because of the use of carousel or hidden by Remote-Control for example) or by the use of a PIR sensor and the module MMM-PIR-Sensor. An immediate update will occur once the module returns to the display.",
+  "main": "MMM-ClickUPv2.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndrewMatayka/MMM-ClickUPv2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndrewMatayka/MMM-ClickUPv2/issues"
+  },
+  "homepage": "https://github.com/AndrewMatayka/MMM-ClickUPv2#readme"
 }
