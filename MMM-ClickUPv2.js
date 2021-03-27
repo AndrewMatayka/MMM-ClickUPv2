@@ -1,12 +1,12 @@
 /* Magic Mirror Module
  * By: Andrew Matayka
  * Module: MMM-ClickUPv2
- * Version: 0.01
+ * Version: 1.00
  */
 let receivedToken = false;
 let loaded = false;
 
-//NEW LOG FUNCTION
+//#region NEW LOG FUNCTION
 const Log = {
 	info: function (message) {
 		console.log("%cInfo: " + message + "\n", "color: gray");
@@ -20,21 +20,22 @@ const Log = {
 		console.log(message);
 	},
 
-	error: function (message) {
-		console.log("%cError: " + message, "color: red");
-	},
-
 	error: function (message, that) {
-		console.log("%c" + that.name + " - Error: " + message, "color: red");
+		if (that !== null) {
+			console.log("%c" + that.name + " - Error: " + message, "color: red");
+		} else {
+			console.log("%c" + "MMM-ClickUPv2" + " - Error: " + message, "color: red");
+		}
 	},
 
 	table: function (message) {
 		console.table(message);
 	}
 };
+//#endregion
 
 Module.register("MMM-ClickUPv2", {
-	//Default Config Values
+	//#region Default Config Values
 	defaults: {
 		folderName: "Education", //Define Folder Name for Folder you Want Tasks From
 		listName: "Homework", //Define List Name From the Folder You Wanted Tasks From
@@ -42,11 +43,11 @@ Module.register("MMM-ClickUPv2", {
 		updateInterval: 60 * 1000, //How often module is updated: (Min * Sec * Ms) = Every 60 Seconds
 
 		taskTypes: ["Class", "Type"], //The Task Types you want to be shown (Custom Fields)
-		highlightedTaskTypes: ["Class"], //The highlighted Task Type for Custom Fields
 		completedStatus: "submitted", //Name of the status used to mark completion
 		maxCompletedTaskCount: 3, //The max amount of shown completed tasks
 		dontShowUntilStartDate: true, //If true, will hide any tasks until their start date. If false will show all tasks as normal
 		includeTextInStatusIndicatorCell: true, //Self-Evident
+		showSubmittedSubtasks: false, //Self-Evident
 
 		clientID: "CZ2CGOL98DNVSMP4O4T3YN26L7E4E4VR",
 		clientSecret: "2YFBQZPOZ47OZGEAORT8LYFHX6ICILIJD8CIPZFBMMIY8O48QL29ZDAJ6REN4E12",
@@ -54,7 +55,9 @@ Module.register("MMM-ClickUPv2", {
 
 		debug: false,
 	},
+	//#endregion
 
+	//#region Get Requirements
 	//Gets the styles for the module
 	getStyles: function () {
 		return [
@@ -70,15 +73,15 @@ Module.register("MMM-ClickUPv2", {
 			return this.data.header;
 		}
 	},
+	//#endregion
 
+	//#region Startup
 	//Ran at start of module
 	start: function () {
-		Log.log(this.config.debug);
-		if (this.config.debug) {
-			Log.trace("Getting Styles: " + this.getStyles(), this);
-		}
+		if (this.config.debug) Log.trace("Getting Styles: " + this.getStyles(), this);
 
-		Log.trace("Starting Module", this);
+		Log.info("Starting Module: " + this.name);
+
 		const self = this; //Set variable self to this object
 
 		//Need to check if we already have Access Token. If not we need to acquire it.
@@ -88,9 +91,11 @@ Module.register("MMM-ClickUPv2", {
 		} else {
 			//Send request to get Access Token
 			if (this.config.debug) Log.trace("Requesting Access Token", this);
+
 			this.sendSocketNotification('Request_AccessToken', this.config); //Request Access Token from Node Helper
 		}
 
+		//Set interval to try and look for received token every half second.
 		let interId = setInterval(() => {
 			if (receivedToken !== true && (this.config.accessToken === "" || this.config.accessToken === null || this.config.accessToken === undefined)) {
 				loaded = false;
@@ -98,28 +103,18 @@ Module.register("MMM-ClickUPv2", {
 			} else {
 				loaded = true;
 				if (this.config.debug) Log.trace("Access Token Available!", this);
-				this.continueStart();
+				self.sendSocketNotification('Request_TasksList', this.config);
 				clearInterval(interId);
 			}
 		}, 50);
 
 		this.updateIntervalID = setInterval(function () {
-			self.continueStart();
+			self.sendSocketNotification('Request_TasksList', this.config);
 		}, this.config.updateInterval);
 	},
+	//#endregion
 
-	//Ran when Access Token is found and we can continue startup
-	continueStart: function () {
-		const self = this;
-
-		//Run Code Here to Fetch first tasks list, then interval to keep requesting tasks list.
-		//self.sendSocketNotification('Request_TasksList', this.config); //Request Access Token from Node Helper
-
-		//setInterval(function () {
-		self.sendSocketNotification('Request_TasksList', this.config); //Request Access Token from Node Helper
-		//}, this.config.updateInterval);
-	},
-
+	//#region Change State
 	//Ran on suspension of module
 	suspend: function () {
 
@@ -129,12 +124,9 @@ Module.register("MMM-ClickUPv2", {
 	resume: function () {
 
 	},
+	//#endregion
 
-	//Ran when receiving notification from System or other Modules
-	notificationReceived: function (notification, payload, sender) {
-
-	},
-
+	//#region Notifications Received
 	//Ran when receiving notification from Node Helper
 	socketNotificationReceived: function (notification, payload) {
 		if (notification === "AccessToken") {
@@ -149,7 +141,10 @@ Module.register("MMM-ClickUPv2", {
 			Log.error("Received Error: " + JSON.stringify(payload.error).err, this)
 		}
 	},
+	//#endregion
 
+	//#region Filtering
+	//Filter through the received tasks list in order to remove submitted tasks over a certain threshold and to sort between child tasks and regular tasks
 	filterTasksList: function (tasks) {
 		let submittedCount = 0;
 
@@ -158,22 +153,27 @@ Module.register("MMM-ClickUPv2", {
 		let parents = []; //Array of individual tasks that have parents
 
 		//Log tasks to a table if debug is enabled
+		if (this.config.debug) Log.log("TASKS TABLE:");
 		if (this.config.debug) Log.table(tasks);
 
 		//Push every task into the array of items so we can access tasks individually.
-		for (let i = 0; i < tasks.length; i++) {
-			if (tasks[i].parent === null || tasks[i].parent === "" || tasks[i].parent === undefined) {
-				if (tasks[i].status.status !== this.config.completedStatus || submittedCount < this.config.maxCompletedTaskCount) {
-					items.push(tasks[i]);
-					if (tasks[i].status.status === this.config.completedStatus) submittedCount++;
+		tasks.forEach(task => {
+			if (task.parent === null) {
+				if (task.status.status !== this.config.completedStatus || submittedCount < this.config.maxCompletedTaskCount) {
+					items.push(task);
+
+					if (task.status.status === this.config.completedStatus)
+						submittedCount++;
 				}
 			} else {
-				//MAKE SUBTASKS NOT SHOWN
-				if (tasks[i].status.status !== this.config.completedStatus) {
-					parents.push(tasks[i]);
+				if (this.config.showSubmittedSubtasks) {
+					parents.push(task);
+				} else {
+					if (task.status.status !== this.config.completedStatus)
+						parents.push(task);
 				}
 			}
-		}
+		});
 
 		this.tasks = {
 			"items": items,
@@ -183,37 +183,22 @@ Module.register("MMM-ClickUPv2", {
 		this.loaded = true;
 		this.updateDom(1000);
 	},
+	//#endregion
 
-	//#region CreateCellTypes
-	createCell: function (className, innerHTML) {
-		let cell = document.createElement("td");
-		cell.className = "divTableCell " + className;
-		cell.innerHTML = innerHTML;
-
-		if (cell.className.includes("title")) {
-			if (innerHTML.includes("-->")) {
-				cell.colSpan = 1;
-			} else {
-				cell.colSpan = 2;
-			}
-		}
-
-		return cell;
-	},
-
+	//#region Create Cell Types
 	createCell: function (className, innerHTML, style) {
 		let cell = document.createElement("td");
 		cell.className = "divTableCell " + className;
 		cell.innerHTML = innerHTML;
-		cell.style = style;
 
-		if (cell.className.includes("title")) {
-			if (innerHTML.includes("-->")) {
-				cell.colSpan = 1;
-			} else {
-				cell.colSpan = 2;
-			}
+		if (style !== null) {
+			cell.style = style;
 		}
+
+		cell.colSpan = 1;
+		if (cell.className.includes("title"))
+			if (!innerHTML.includes("└→"))
+				cell.colSpan = 2;
 
 		return cell;
 	},
@@ -304,9 +289,8 @@ Module.register("MMM-ClickUPv2", {
 	//Add Title Cell
 	addTitleCell: function (item) {
 		//If subtask then add subtask arrow
-		if (item.parent !== null) {
-			item.name = "--> " + item.name;
-		}
+		if (item.parent !== null)
+			item.name = "└→ " + item.name;
 
 		return this.createCell("title bright alignLeft", item.name);
 	},
@@ -324,37 +308,22 @@ Module.register("MMM-ClickUPv2", {
 	//Add Priority indicator for task
 	addPriorityIndicatorCell: function (item) {
 		let className = "priority ";
+		let style = "";
+
 		if (item.priority !== null) {
-			switch (parseInt(item.priority.id)) {
-				case 1:
-					className += "priority1";
-					break;
-				case 2:
-					className += "priority2";
-					break;
-				case 3:
-					className += "priority3";
-					break;
-				case 4:
-					className += "priority4";
-					break;
-				default:
-					className = "";
-					break;
-			}
-		} else {
-			className += "priority1";
+			style = "background-color: " + item.priority.color + ";";
 		}
-		return this.createCell(className, "&nbsp;");
+		return this.createCell(className, "&nbsp;", style);
 	},
 
 	addStatusIndicatorCell: function (item) {
-		let className = "status";
-		let style = "";
+		let className = "";
 		let innerHTML = "&nbsp;"
+		let style = "";
 
 		if (item.status.status !== null) {
-			style += "background-color: " + item.status.color + " ";
+			style += "background-color: " + item.status.color + ";";
+			className += "status ";
 		}
 		if (this.config.includeTextInStatusIndicatorCell) {
 			innerHTML = item.status.status;
@@ -366,24 +335,23 @@ Module.register("MMM-ClickUPv2", {
 			}
 
 			innerHTML = "<span class='bgText'>" + words.join(" ") + "</span>";
+		} else {
+			className += "statusNoText ";
 		}
 
 		return this.createCell(className, innerHTML, style)
 	},
 
 	//Add Type Cell depending on input. Uses Custom Field
-	addTypeCell: function (item, typeName, highlightedType) {
+	addTypeCell: function (item, typeName) {
 		let typeValIndex = 0;
+		let typeValColor = "#00000000";
 		let typeValName = "N/A";
-		let typeValColor = null;
 
-		let count = 0;
-		item.custom_fields.forEach(field => {
-			if (field.name.toUpperCase() === typeName.toUpperCase()) {
-				typeValIndex = count;
-			}
-			count++;
-		});
+		for (let i = 0; i < item.custom_fields.length; i++) {
+			if (item.custom_fields[i].name.toUpperCase() === typeName.toUpperCase())
+				typeValIndex = i;
+		}
 
 		if (item.custom_fields[typeValIndex].value !== undefined) {
 			typeValName = item.custom_fields[typeValIndex].type_config.options[item.custom_fields[typeValIndex].value].name;
@@ -391,17 +359,18 @@ Module.register("MMM-ClickUPv2", {
 		}
 
 		let innerHTML = "<span class='bgText'>" + typeValName + "</span>";
-		let style = "background-color: " + typeValColor + " ";
+		let style = "background-color: " + typeValColor + ";";
 
 		return this.createCell("", innerHTML, style);
 	},
 	////#endregion
 
+	//#region HTML & Wrapper Creation
 	//Ran when updating HTML of Module
 	getDom: function () {
 		let wrapper = document.createElement('div');
 
-		if (this.config.debug) Log.trace("Method GetDom Called", this);
+		if (this.config.debug) Log.trace("GetDom() Called", this);
 
 		//If not loaded return loading screen.
 		if (!loaded) {
@@ -426,21 +395,16 @@ Module.register("MMM-ClickUPv2", {
 		this.tasks.parents.forEach(item => {
 			if (this.config.debug) Log.trace("Parent: " + item.name + " | " + item.parent + "<--(Parent's ID)", this);
 
-			let index = null, count = 0;
+			let index = null;
 
-			this.tasks.items.forEach(itemParents => {
-				if (itemParents.id === item.parent) {
-					index = count;
-				}
-				count++;
-			});
+			for (let i = 0; i < this.tasks.items.length; i++) {
+				if (this.tasks.items[i].id === item.parent)
+					index = i;
+			}
 
 			//If parent task is submitted, then subtasks shouldn't be added; If we can't find the index for the parent of our subtask, then we can ignore them.
-			if (index !== null) {
-				if (this.tasks.items[index].status.status !== this.config.completedStatus) {
-					this.tasks.items.splice(index + 1, 0, item)
-				}
-			}
+			if (this.tasks.items[index].status.status !== this.config.completedStatus && index !== null)
+				this.tasks.items.splice(index + 1, 0, item);
 		});
 
 		//Also creating everything we need to show our tasks.
@@ -473,14 +437,11 @@ Module.register("MMM-ClickUPv2", {
 					}
 				} else { //If a SubTasks parent task isn't started yet, then don't show any of the subtasks either.
 					let index = null;
-					let count = 0;
 
-					this.tasks.items.forEach(itemParents => {
-						if (itemParents.id === item.parent) {
-							index = count;
-						}
-						count++;
-					});
+					for (let i = 0; i < this.tasks.items.length; i++) {
+						if (this.tasks.items[i].id === item.parent)
+							index = i;
+					}
 
 					if (index !== null) {
 						const oneDay = 24 * 60 * 60 * 1000;
@@ -501,7 +462,7 @@ Module.register("MMM-ClickUPv2", {
 			//Add Priority Cell
 			divRow.appendChild(this.addPriorityIndicatorCell(item));
 
-			//Add Status Cell
+			//Add Status Cell (No Text)
 			if (!this.config.includeTextInStatusIndicatorCell) {
 				divRow.appendChild(this.addStatusIndicatorCell(item));
 			}
@@ -515,6 +476,7 @@ Module.register("MMM-ClickUPv2", {
 			//Add Title Cell
 			divRow.appendChild(this.addTitleCell(item));
 
+			//Add Status with Text Cell
 			if (this.config.includeTextInStatusIndicatorCell) {
 				divRow.appendChild(this.addStatusIndicatorCell(item));
 			}
@@ -524,12 +486,9 @@ Module.register("MMM-ClickUPv2", {
 
 			//Use Task Types from config in order to add the Type Columns you desire.
 			let taskTypes = Object.values(this.config.taskTypes);
-			let highlightedTaskTypes = Object.values(this.config.highlightedTaskTypes);
 
 			taskTypes.forEach(type => {
-				highlightedTaskTypes.forEach(high => {
-					divRow.appendChild(this.addTypeCell(item, type, type === high));
-				});
+					divRow.appendChild(this.addTypeCell(item, type));
 			});
 
 			//Add Due Date Cell
@@ -550,6 +509,7 @@ Module.register("MMM-ClickUPv2", {
 		//Return all of our HTML
 		return wrapper;
 	},
+	//#endregion
 
 	//Return the possible Task Types (Custom Fields)
 	getPossibleTaskTypes: function () {

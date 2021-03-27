@@ -124,6 +124,8 @@ module.exports = NodeHelper.create({
 				}, function (error, response, body) {
 					if (!error)
 						resolve(JSON.parse(body).teams[0].id);
+					else
+						console.error(error);
 				});
 			}).then(value => {
 				if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Teams ID: " + value, "color: green;");
@@ -138,6 +140,8 @@ module.exports = NodeHelper.create({
 					}, function (error, response, body) {
 						if (!error)
 							resolve(JSON.parse(body).spaces[0].id);
+						else
+							console.error(error);
 					});
 				}).then(value => {
 					if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Spaces ID: " + value, "color: green;");
@@ -159,7 +163,8 @@ module.exports = NodeHelper.create({
 										resolve(folder.id);
 									}
 								});
-							}
+							} else
+								console.error(error);
 						});
 					}).then(value => {
 						if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Folders ID: " + value, "color: green;")
@@ -181,7 +186,8 @@ module.exports = NodeHelper.create({
 											resolve(list.id);
 										}
 									});
-								}
+								} else
+									console.error(error);
 							});
 						}).then(value => {
 							if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Lists ID: " + value, "color: green;");

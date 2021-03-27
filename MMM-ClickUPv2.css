@@ -1,3 +1,4 @@
+/*#region Text Alignment */
 .alignLeft {
   text-align: left;
 }
@@ -5,44 +6,34 @@
 .alignRight {
   text-align: right;
 }
+/*#endregion*/
 
+/*#region Spacer Setup */
 .spacer {
   width: 3px;
 }
 
 .subSpacer {
-  width: 12px;
+  width: 1px;
 }
+/*#endregion*/
 
+/*#region Text Setup */
 .bgText {
   color: rgb(162, 162, 162);
   mix-blend-mode: difference;
 }
+/*#endregion*/
 
-/* IMPORTED */
-.priority {
+/*#region Priority & Status Setup */
+.priority, .statusNoText {
   width: 3px;
   border-right: 3px;
   margin-right: 3px;
 }
+/*#endregion*/
 
-.priority1 {
-  background-color: #D1453B;
-}
-
-.priority2 {
-  background-color: #ffcc00;
-}
-
-.priority3 {
-  background-color: #6fddff;
-}
-
-.priority4 {
-  background-color: #d8d8d8
-}
-
-/* DUE DATE STUFF */
+/*#region Due Date Setup */
 .dueDate {
   width: 1%;
   white-space: nowrap;
@@ -60,9 +51,9 @@
 .tomorrow {
   text-decoration: underline #166cec;
 }
-/* END END END END */
+/*#endregion*/
 
-/* StrikeThrough and Disappear Setup */
+/*#region StrikeThrough and Disappear Setup */
 td {
   position: relative;
 }
@@ -75,17 +66,18 @@ tr.strikethrough td:before {
   border-bottom: 1px solid #ffffff;
   width: 100%;
 }
+/*#endregion*/
 
-.disappear {
-  display: none !important;
-}
-
-/* Table Setup */
+/*#region Table Setup */
 .divTable {
   display: table;
   width: 100%;
   border-collapse: collapse;
   empty-cells: show;
+}
+
+table, th, td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
 }
 
 .divTableRow {
@@ -117,3 +109,4 @@ tr.strikethrough td:before {
 .divTableBody {
   display: table-row-group;
 }
+/*#endregion*/
