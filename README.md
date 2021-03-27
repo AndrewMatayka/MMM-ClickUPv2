@@ -31,9 +31,9 @@ modules: [
             dontShowUntilStartDate: true, //If this is true, it will hide any tasks until their start date. If false will show all tasks as normal
             includeTextInStatusIndicatorCell: true,
             showSubmittedSubtasks: false,
-            clientID: "CZ2CGOL98DNVSMP4O4T3YN26L7E4E4VR", //Your Client-ID That you get when registering an app.
-            clientSecret: "2YFBQZPOZ47OZGEAORT8LYFHX6ICILIJD8CIPZFBMMIY8O48QL29ZDAJ6REN4E12", //Your Client-Secret that you get when registering an app.
-            accessCode: "40R1Z3TX3EYQ9HW1VSZBMM1EMX3MJNH2", //The accessCode that we got from the guide. Using [MMM-ClickUPv2-Server]
+            clientID: "", //Your Client-ID That you get when registering an app.
+            clientSecret: "", //Your Client-Secret that you get when registering an app.
+            accessCode: "", //The accessCode that we got from the guide. Using [MMM-ClickUPv2-Server]
             debug: false //Whether or not to show Debug info.
         }
     }
@@ -42,3 +42,38 @@ modules: [
 
 ## Configuration Options
 The following properties are able to be configured inside of `config/config.js`.
+
+Option | Description
+------ | ------
+folderName | The name of the Folder that you want to get your List from.<br><br>**Possible values:** `string`<br>**Default value:** `Education`<br><br>**This value and the listName entry must be specified.** If both the folderName and listName are not specified, then no tasks will be shown.
+listName | The name of the List that you want to get your Tasks from.<br><br>**Possible values:** `string`<br>**Default value:** `Homework`<br><br>**This value and the listName entry must be specified.** If both the folderName and listName are not specified, then no tasks will be shown.
+updateInterval | The amount of time it takes until the Tasks will be refreshed.<br><br>**Possible values:** `int`<br>**Default value:** `60 * 1000`
+taskTypes | The names of the Custom Fields (Types) that you want to be displayed.<br><br>**Possible values:** `array`<br>**Default value:** `["Class", "Type"]`<br><br>**Note:** If `debug` is enabled, the Javascript Console in your browser will list the possible Custom Fields (Types) that you can use.
+completedStatus | The name of the Completed Status in your ClickUP List.<br><br>**Possible values:** `string`<br>**Default value:** `submitted`
+maxCompletedTaskCount | The maximum amount of completed tasks to be shown with other tasks (crossed off).<br><br>**Possible values:** `int`<br>**Default value:** `3`
+dontShowUntilStartDate | Whether or not to show tasks before their Start Date.<br><br>**Possible values:** `boolean`<br>**Default value:** `true`
+includeTextInStatusIndicatorCell | Whether to show the Status Text inside of the Status Indicator Cell.<br><br>**Possible values:** `boolean`<br>**Default value:** `true`<br><br>**Note:** Activating this will move the status indicator to the right of the Task Title, next to the rest of the fields.
+showSubmittedSubtasks | Whether or not to show Completed SubTasks.<br><br>**Possible values:** `boolean`<br>**Default value:** `false`
+clientID | The Client ID that you got in the Setup Guide.<br><br>**Possible values:** `string`<br>**Default value:** `none`<br><br>**Note:** Used for API requests when contacting the ClickUP API.
+clientSecret | The Client Secret that you got in the Setup Guide.<br><br>**Possible values:** `string`<br>**Default value:** `none`<br><br>**Note:** Used for API requests when contacting the ClickUP API.
+accessCode | The Client Access Code that you got in the Setup Guide..<br><br>**Possible values:** `string`<br>**Default value:** ``<br><br>**Note:** Used for API requests when contacting the ClickUP API. This is a one-time use for generating the Access Token.
+debug | Whether or not to put the Module into Debug mode, where it shows an increased amount of logs and data.<br><br>**Possible values:** `boolean`<br>**Default value:** `false`
+
+## Dependencies
+* [request](https://www.npmjs.com/package/request) (Installed via `npm install` from [Installation](#installation))
+
+# Screenshots
+A few sample screenshots in order to show you what this module looks like.
+It is fairly configurable and is subject to be changed depending on how you use ClickUP.
+
+# Attribution
+This project is based on work done by Chris Brooker in the [MMM-Todoist](https://github.com/cbrooker/MMM-Todoist/) module.
+
+# The MIT License (MIT)
+Copyright © 2021 Andrew Matayka
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+The software is provided “as is”, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
