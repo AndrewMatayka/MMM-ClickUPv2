@@ -84,11 +84,6 @@ table, th, td {
   width: 100%;
 }
 
-.divTableHeading {
-  background-color: #EEE;
-  display: table-header-group;
-}
-
 .divTableCell, .divTableHead {
   display: table-cell;
   vertical-align: middle;

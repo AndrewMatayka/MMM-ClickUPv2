@@ -148,7 +148,6 @@ Module.register("MMM-ClickUPv2", {
 	filterTasksList: function (tasks) {
 		let submittedCount = 0;
 
-		const self = this; //Setting self so we have a localized instance
 		let items = []; //Array of individual tasks that dont have parents
 		let parents = []; //Array of individual tasks that have parents
 
@@ -208,6 +207,21 @@ Module.register("MMM-ClickUPv2", {
 		return d + (31 === d || 21 === d || 1 === d ? "st" : 22 === d || 2 === d ? "nd" : 23 === d || 3 === d ? "rd" : "th");
 	},
 
+	//Format Time into Local Time Zone
+	formatTime: function (d) {
+		function z(n) {
+			return (n < 10 ? "0" : "") + n;
+		}
+
+		let h = d.getHours();
+		let m = z(d.getMinutes());
+		if (this.config.timeFormat === 12) {
+			return " " + (h % 12 || 12) + ":" + m + (h < 12 ? " AM" : " PM");
+		} else {
+			return " " + h + ":" + m;
+		}
+	},
+
 	//Add Due Date Cell and Localize Names based on how far they are (Monday, Tuesday, Tomorrow, Today, Yesterday, Etc...)
 	addDueDateCell: function (item) {
 		let className = "align-right dueDate ";
@@ -263,21 +277,7 @@ Module.register("MMM-ClickUPv2", {
 			}
 
 			if (innerHTML !== "" && allDay !== "4:0") {
-				function formatTime(d) {
-					function z(n) {
-						return (n < 10 ? "0" : "") + n;
-					}
-
-					let h = d.getHours();
-					let m = z(d.getMinutes());
-					if (config.timeFormat === 12) {
-						return " " + (h % 12 || 12) + ":" + m + (h < 12 ? " AM" : " PM");
-					} else {
-						return " " + h + ":" + m;
-					}
-				}
-
-				innerHTML += " @ " + formatTime(dueDateTime);
+				innerHTML += " @ " + this.formatTime(dueDateTime);
 			}
 		} else {
 			innerHTML += "N/A";
@@ -285,6 +285,7 @@ Module.register("MMM-ClickUPv2", {
 		}
 		return this.createCell(className, innerHTML);
 	},
+
 
 	//Add Title Cell
 	addTitleCell: function (item) {
@@ -488,7 +489,7 @@ Module.register("MMM-ClickUPv2", {
 			let taskTypes = Object.values(this.config.taskTypes);
 
 			taskTypes.forEach(type => {
-					divRow.appendChild(this.addTypeCell(item, type));
+				divRow.appendChild(this.addTypeCell(item, type));
 			});
 
 			//Add Due Date Cell
