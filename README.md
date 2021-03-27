@@ -26,6 +26,7 @@ To setup this module, follow these steps:
 4. Find the Option that says ClickUP Api, as shown here.
 
 ![img.png](img.png)
+
 5. Click the Green Plus near the right side that says `+ Create an App`.
 6. Enter `MMM-ClickUPv2` as the `App Name`.
 7. Enter `127.0.0.1` as the `Redirect URL(s)`.
