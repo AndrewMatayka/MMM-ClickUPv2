@@ -45,7 +45,7 @@ Module.register("MMM-ClickUPv2", {
 
 		taskTypes: ["Class", "Type"], //The Task Types you want to be shown (Custom Fields)
 		completedStatus: "submitted", //Name of the status used to mark completion
-		crossedOffStatuses: ["finished"], //Name of the statuses you want to always be shown but crossed out. Don't include the completed status.
+		crossedOffStatus: "finished", //Name of the status you want to always be shown but crossed out. Don't include the completed status.
 		maxCompletedTaskCount: 3, //The max amount of shown completed tasks
 		dontShowUntilStartDate: true, //If true, will hide any tasks until their start date. If false will show all tasks as normal
 		includeTextInStatusIndicatorCell: true, //Self-Evident
@@ -449,7 +449,7 @@ Module.register("MMM-ClickUPv2", {
 			divRow.className = "divTableRow";
 
 			//Check if task is submitted or not yet, if so strikethrough the task name.
-			if (item.status.status === this.config.completedStatus || item.status.status === this.config.crossedOffStatuses[0]) {
+			if (item.status.status === this.config.completedStatus || item.status.status === this.config.crossedOffStatus) {
 				divRow.className += " strikethrough"
 				divRow.style.filter = "brightness(50%) grayscale(100%)";
 			}
