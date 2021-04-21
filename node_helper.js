@@ -40,86 +40,94 @@ module.exports = NodeHelper.create({
 		let aTFData = "";
 
 		//Find out if AccessToken is already found and in file. If not find the Access Token
-		return new Promise(resolve => {
-			fs.readFile(path + '/accessToken', 'UTF-8', (error, data) => {
-				if (error) {
-					self.sendSocketNotification("Error", {
-						error: error
-					});
-
-					//if(data.includes("no such")) {
-					fs.open(path + '/accessToken', 'w', (err, file) => {
-						if (err) {
-							throw err;
-						}
-
-						console.log("File is created.");
-					});
-					this.requestAccessToken();
-					//	return;
-					//}
-
-					return console.error("MMM-ClickUPv2 (node): " + error);
-				}
-				aTFData = data;
-
-				//If the AccessToken file does not contain the Access Token, or does not exist.
-				if (aTFData.length === 0) {
-					if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Requesting Access Token!", "color: yellow;")
-
-					request({
-							url: "https://api.clickup.com/api/v2/oauth/token",
-							method: "POST",
-							headers: {
-								"content-type": "application/json",
-								"cache-control": "no-cache"
-							},
-							form: {
-								client_id: self.config.clientID,
-								client_secret: self.config.clientSecret,
-								code: self.config.accessCode
-							}
-						},
-						function (error, response, body) {
-							if (error) {
-								self.sendSocketNotification("Error", {
-									error: error
-								});
-								return console.error("MMM-ClickUPv2 (node): " + error);
-							}
-							if (response.statusCode === 200) {
-								let responseJson = JSON.parse(body);
-								accessToken = responseJson.access_token;
-								if (self.config.debug) console.log("%cMMM-ClickUPv2 (node): Access Token Received: '" + accessToken + "'!", "color: yellow;");
-
-								fs.appendFile(path + '/accessToken', accessToken, (err) => {
-									if (err) {
-										console.log(err)
-									}
-									if (self.config.debug) console.log("%cMMM-ClickUPv2 (node): Writing Access Token to file!", "color: yellow;")
-								});
-
-								resolve(accessToken);
-							} else {
-								if (self.config.debug) console.log("%cMMM-ClickUPv2 (node): ClickUP api request status - '" + response.statusCode + "'!", "color: yellow;");
-								if (self.config.debug) console.log("%cMMM-ClickUPv2 (node): ClickUP api request response - '" + response.body + "'!", "color: yellow;");
-
-								self.sendSocketNotification("Error", {
-									error: response.body,
-									statusCode: response.statusCode
-								});
-							}
+		if (accessToken === undefined) {
+			return new Promise(resolve => {
+				fs.readFile(path + '/accessToken', 'UTF-8', (error, data) => {
+					if (error) {
+						self.sendSocketNotification("Error", {
+							error: error
 						});
-				} else { //If the Access Token is found in the accessToken file
-					if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Read Access Token from file: '" + aTFData + "'!", "color: yellow;");
-					resolve(aTFData);
-				}
+
+						//if(data.includes("no such")) {
+						let fd = fs.open(path + '/accessToken', 'w', (err, file) => {
+							if (err) {
+								throw err;
+							}
+
+
+							console.log("File is created.");
+						});
+						fd.close();
+
+						this.requestAccessToken();
+						//	return;
+						//}
+
+						return console.error("MMM-ClickUPv2 (node): " + error);
+					}
+					aTFData = data;
+
+					//If the AccessToken file does not contain the Access Token, or does not exist.
+					if (aTFData.length === 0) {
+						if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Requesting Access Token!", "color: yellow;")
+
+						request({
+								url: "https://api.clickup.com/api/v2/oauth/token",
+								method: "POST",
+								headers: {
+									"content-type": "application/json",
+									"cache-control": "no-cache"
+								},
+								form: {
+									client_id: self.config.clientID,
+									client_secret: self.config.clientSecret,
+									code: self.config.accessCode
+								}
+							},
+							function (error, response, body) {
+								if (error) {
+									self.sendSocketNotification("Error", {
+										error: error
+									});
+									return console.error("MMM-ClickUPv2 (node): " + error);
+								}
+								if (response.statusCode === 200) {
+									let responseJson = JSON.parse(body);
+									accessToken = responseJson.access_token;
+									if (self.config.debug) console.log("%cMMM-ClickUPv2 (node): Access Token Received: '" + accessToken + "'!", "color: yellow;");
+
+									fs.appendFile(path + '/accessToken', accessToken, (err) => {
+										if (err) {
+											console.log(err)
+										}
+										if (self.config.debug) console.log("%cMMM-ClickUPv2 (node): Writing Access Token to file!", "color: yellow;")
+									});
+
+									resolve(accessToken);
+								} else {
+									if (self.config.debug) console.log("%cMMM-ClickUPv2 (node): ClickUP api request status - '" + response.statusCode + "'!", "color: yellow;");
+									if (self.config.debug) console.log("%cMMM-ClickUPv2 (node): ClickUP api request response - '" + response.body + "'!", "color: yellow;");
+
+									self.sendSocketNotification("Error", {
+										error: response.body,
+										statusCode: response.statusCode
+									});
+								}
+							});
+					} else { //If the Access Token is found in the accessToken file
+						if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Read Access Token from file: '" + aTFData + "'!", "color: yellow;");
+						resolve(aTFData);
+					}
+				});
+			}).then(value => {
+				accessToken = value;
+				self.config.accessToken = value;
+				self.sendSocketNotification("AccessToken", value);
 			});
-		}).then(value => {
-			accessToken = value;
-			self.config.accessToken = value;
-			self.sendSocketNotification("AccessToken", value);
-		});
+		} else {
+			self.config.accessToken = accessToken;
+			self.sendSocketNotification("AccessToken", accessToken);
+		}
 	},
 
 	requestTasks: async function () {
