@@ -41,7 +41,7 @@ Module.register("MMM-ClickUPv2", {
 		folderName: "Education", //Define Folder Name for Folder you Want Tasks From
 		listName: "Homework", //Define List Name From the Folder You Wanted Tasks From
 
-		updateInterval: 60 * 1000, //How often module is updated: (Min * Sec * Ms) = Every 60 Seconds
+		updateInterval: 10 * 1000, //How often module is updated: (Min * Sec * Ms) = Every 60 Seconds
 
 		taskTypes: ["Class", "Type"], //The Task Types you want to be shown (Custom Fields)
 		completedStatus: "submitted", //Name of the status used to mark completion
@@ -113,7 +113,7 @@ Module.register("MMM-ClickUPv2", {
 		}, 50);
 
 		this.updateIntervalID = setInterval(function () {
-			self.sendSocketNotification('Request_TasksList', this.config);
+			self.sendSocketNotification('Request_TasksList', self.config);
 		}, this.config.updateInterval);
 	},
 	//#endregion

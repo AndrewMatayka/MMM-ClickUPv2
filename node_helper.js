@@ -27,7 +27,7 @@ module.exports = NodeHelper.create({
 		} else if (notification === "Request_TasksList") {
 			this.config = payload;
 
-			if (this.config.debug) console.log("\n%cMMM-ClickUPv2 (node): Request Tasks List Notification Received!", "color: green;");
+			if (true) console.log("\n%cMMM-ClickUPv2 (node): Request Tasks List Notification Received!", "color: green;");
 
 			this.requestTasks();
 		}
@@ -53,7 +53,6 @@ module.exports = NodeHelper.create({
 							if (err) {
 								throw err;
 							}
-
 
 							console.log("File is created.");
 						});
@@ -125,116 +124,133 @@ module.exports = NodeHelper.create({
 				self.sendSocketNotification("AccessToken", value);
 			});
 		} else {
+			console.log("Found Access Token! No need to request!");
 			self.config.accessToken = accessToken;
 			self.sendSocketNotification("AccessToken", accessToken);
 		}
 	},
 
-	requestTasks: async function () {
+	requestTasks: function () {
 		const self = this;
 
 		if (accessToken !== undefined) {
-			return new Promise(resolve => {
-				if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Requesting Teams ID!", "color: green;");
-				request({
-					url: "https://api.clickup.com/api/v2/team",
-					method: "GET",
-					headers: {
-						Authorization: accessToken
-					}
-				}, function (error, response, body) {
-					if (!error)
-						resolve(JSON.parse(body).teams[0].id);
-					else
-						console.error(error);
-				});
-			}).then(value => {
-				if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Teams ID: " + value, "color: green;");
-
-				return new Promise(function (resolve) {
+			try {
+				console.log("Got Access Token, ALL GOOD!");
+				return new Promise(resolve => {
+					if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Requesting Teams ID!", "color: green;");
 					request({
-						url: 'https://api.clickup.com/api/v2/team/' + value + '/space',
+						url: "https://api.clickup.com/api/v2/team",
 						method: "GET",
 						headers: {
 							Authorization: accessToken
-						},
+						}
 					}, function (error, response, body) {
-						if (!error)
-							resolve(JSON.parse(body).spaces[0].id);
-						else
+						if (!error) {
+							resolve(JSON.parse(body).teams[0].id);
+						} else {
 							console.error(error);
+							resolve(error)
+						}
 					});
 				}).then(value => {
-					if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Spaces ID: " + value, "color: green;");
+					if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Teams ID: " + value, "color: green;");
 
 					return new Promise(function (resolve) {
 						request({
-							url: 'https://api.clickup.com/api/v2/space/' + value + '/folder',
+							url: 'https://api.clickup.com/api/v2/team/' + value + '/space',
 							method: "GET",
 							headers: {
 								Authorization: accessToken
 							},
 						}, function (error, response, body) {
-							if (!error) {
-								//resolve(JSON.parse(body).folders[1].id);
-								let folders = JSON.parse(body).folders;
-
-								folders.forEach(folder => {
-									if (self.config.folderName === folder.name) {
-										resolve(folder.id);
-									}
-								});
-							} else
+							if (!error)
+								resolve(JSON.parse(body).spaces[0].id);
+							else {
 								console.error(error);
+								resolve(error);
+							}
 						});
 					}).then(value => {
-						if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Folders ID: " + value, "color: green;")
+						if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Spaces ID: " + value, "color: green;");
 
 						return new Promise(function (resolve) {
 							request({
-								url: 'https://api.clickup.com/api/v2/folder/' + value + '/list',
+								url: 'https://api.clickup.com/api/v2/space/' + value + '/folder',
 								method: "GET",
 								headers: {
 									Authorization: accessToken
 								},
 							}, function (error, response, body) {
 								if (!error) {
-									//resolve(JSON.parse(body).lists[0].id);
-									let lists = JSON.parse(body).lists;
+									//resolve(JSON.parse(body).folders[1].id);
+									let folders = JSON.parse(body).folders;
 
-									lists.forEach(list => {
-										if (self.config.listName === list.name) {
-											resolve(list.id);
+									folders.forEach(folder => {
+										if (self.config.folderName === folder.name) {
+											resolve(folder.id);
 										}
 									});
-								} else
+								} else {
 									console.error(error);
+									resolve(error)
+								}
 							});
 						}).then(value => {
-							if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Lists ID: " + value, "color: green;");
+							if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Folders ID: " + value, "color: green;")
 
 							return new Promise(function (resolve) {
 								request({
-									url: 'https://api.clickup.com/api/v2/list/' + value + '/task?archived=false&subtasks=true&include_closed=true&order_by=due_date',
+									url: 'https://api.clickup.com/api/v2/folder/' + value + '/list',
 									method: "GET",
 									headers: {
 										Authorization: accessToken
 									},
 								}, function (error, response, body) {
-									if (!error)
-										resolve(JSON.parse(body));
+									if (!error) {
+										//resolve(JSON.parse(body).lists[0].id);
+										let lists = JSON.parse(body).lists;
+
+										lists.forEach(list => {
+											if (self.config.listName === list.name) {
+												resolve(list.id);
+											}
+										});
+									} else {
+										console.error(error);
+										resolve(error);
+									}
 								});
 							}).then(value => {
-								if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Tasks:", "color: green;");
+								if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Lists ID: " + value, "color: green;");
 
-								self.sendSocketNotification("Tasks_List", value);
+								return new Promise(function (resolve) {
+									request({
+										url: 'https://api.clickup.com/api/v2/list/' + value + '/task?archived=false&subtasks=true&include_closed=true&order_by=due_date',
+										method: "GET",
+										headers: {
+											Authorization: accessToken
+										},
+									}, function (error, response, body) {
+										if (!error)
+											resolve(JSON.parse(body));
+										else
+											resolve(error);
+									});
+								}).then(value => {
+									if (this.config.debug) console.log("%cMMM-ClickUPv2 (node): Received Tasks!", "color: green;");
+
+									self.sendSocketNotification("Tasks_List", value);
+								});
 							});
 						});
 					});
-				});
-			})
+				})
+			} catch (e) {
+				console.log(e);
+			}
 		} else {
 			if (this.config.debug) console.log("%cMMM-ClickUPv2: No Access Token Found!!!", "color: cyan;");
 		}
+		console.log("Still here");
 	}
 });
